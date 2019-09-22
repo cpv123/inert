@@ -1,16 +1,42 @@
 function mountElement(element, parent) {
 	const { type, props } = element
-	let mountedEl
+	let mountedElement
 
 	switch(type) {
 		case 'text':
-			mountedEl = document.createTextNode(props.textValue)
+			mountedElement = document.createTextNode(props.textValue)
 			break
 		default:
-			mountedEl = document.createElement(type)
+			mountedElement = document.createElement(type)
 			break
 	}
 
+	// Need this for updating virtual elements
+	element._dom = mountedElement
+
+	setAttributes(mountedElement, props)
+
+	props.children && props.children.forEach(child => (
+		mountElement(child, mountedElement)
+	))
+
+	parent.appendChild(mountedElement)
+	return mountedElement
+}
+
+function renderIntoTree(element, parent) {
+	const mountedElement = mountElement(element)
+	parent.appendChild(mountedElement)
+}
+
+function updateElement(prevElement, nextElement, parent) {
+	const dom = prevElement._dom
+	nextElement._dom = dom
+	const newElement = mountElement(nextElement, parent)
+	parent.replaceChild(newElement, dom)
+}
+
+function setAttributes(element, props) {
 	const propsToIgnore = ['children', 'textValue']
 	const propNames = Object.keys(props).filter(name => (
 		!propsToIgnore.includes(name)
@@ -19,18 +45,13 @@ function mountElement(element, parent) {
 	propNames.length && propNames.forEach(name => {
 		if (name.startsWith('on')) {
       const listenerName = name.substring(2).toLowerCase()
-			mountedEl.addEventListener(listenerName, props[name])
+			element.addEventListener(listenerName, props[name])
 		} else {
-			mountedEl[name] = props[name]
+			element[name] = props[name]
 		}
 	})
 
-	props.children && props.children.forEach(child => (
-		mountElement(child, mountedEl)
-	))
-
-	parent.appendChild(mountedEl)
-	return parent
+	return element
 }
 
-export { mountElement }
+export { mountElement, updateElement, renderIntoTree }

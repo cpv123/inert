@@ -1,5 +1,7 @@
-import { Component } from './component.js'
-import { createElement } from './index.js'
+import { Component } from './src/component.js'
+import { createElement } from './src/index.js'
+
+const h = createElement
 
 class App extends Component {
   constructor() {
@@ -9,12 +11,12 @@ class App extends Component {
 
   render() {
     return (
-      createElement('div', { id: 1, testProp: 'value' }, [
-        createElement('p', { id: 2 }, [
-          createElement('text', { textValue: 'Paragraph' })
+      h('div', { id: 1, testProp: 'value' }, [
+        h('p', { id: 2 }, [
+          h('text', { textValue: 'Click below to update state' })
         ]),
-        createElement('button', { onClick: () => this.setLocalState({ count: 1 }) }, [
-          createElement('text', { textValue: this.state.count })
+        h('button', { onClick: () => this.setLocalState({ count: this.state.count + 1 }) }, [
+          h('text', { textValue: this.state.count })
         ])
       ])
     )

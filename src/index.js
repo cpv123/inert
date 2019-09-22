@@ -1,4 +1,4 @@
-import { mountElement } from './element.js'
+import { mountElement, renderIntoTree } from './element.js'
 import { mountComponent } from './component.js'
 
 function createElement(type, props = {}, children = []) {
@@ -23,7 +23,8 @@ function mount(input, parent) {
 	}
 
 	if (typeof input.type === 'string') {
-		return mountElement(input, parent)
+		const element = mountElement(input)
+    return renderIntoTree(element)
 	}
 }
 
