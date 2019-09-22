@@ -6,9 +6,10 @@
     </body>
     <script type="module">
         import { App } from './src/app.js'
-        import { render, transpile } from './src/index.js'
+        import { mount, createElement } from './src/index.js'
 
         const root = document.getElementById('wrapper')
-        render(transpile(App), root)
+        const AppToMount = createElement(App)
+        mount(AppToMount, root)
     </script>
 </html>

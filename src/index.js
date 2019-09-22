@@ -1,28 +1,30 @@
-function render(element, parent) {
-	const { type, props } = element
+import { mountElement } from './element.js'
+import { mountComponent } from './component.js'
 
-	const mountedEl = type === 'text' ?
-		document.createTextNode(props.textValue)
-		: document.createElement(type)
+function createElement(type, props = {}, children = []) {
+  if (typeof type === 'function') {
+    return { type, props }
+  }
 
-	const propsToIgnore = ['children', 'textValue']
-	const propNames = Object.keys(props)
-		.filter(name => !propsToIgnore.includes(name))
+  if (children.length) {
+    const cleansedChildren = children.filter(child => child !== null)
+    props.children = cleansedChildren
+  }
 
-	propNames.length && propNames.forEach(name => {
-		if (name.startsWith('on')) {
-      const listenerName = name.substring(2).toLowerCase()
-			mountedEl.addEventListener(listenerName, props[name])
-		} else {
-			mountedEl[name] = props[name]
-		}
-	})
-	
-	const children = props.children ? 
-		props.children.filter(child => child !== null) : []
-	children.forEach(child => render(child, mountedEl))
+  return {
+    type,
+    props: { ...props },
+  }
+}
 
-	parent.appendChild(mountedEl)
+function mount(input, parent) {
+	if (typeof input.type === 'function') {
+		return mountComponent(input, parent)
+	}
+
+	if (typeof input.type === 'string') {
+		return mountElement(input, parent)
+	}
 }
 
 const transpile = node => {
@@ -37,7 +39,4 @@ const transpile = node => {
   }
 }
 
-export {
-	render,
-	transpile,
-}
+export { mount, createElement }
